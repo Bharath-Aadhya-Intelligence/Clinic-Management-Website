@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { X, CheckCircle, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { placeOrder } from '../api/orders';
 
 Modal.setAppElement('#root');
 
@@ -22,13 +23,24 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
     }
 
     setIsSubmitting(true);
-    // Mock API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await placeOrder({
+        customer_name: formData.name,
+        phone_number: formData.phone,
+        address: formData.address,
+        medicine_id: medicine.id,
+        medicine_name: medicine.name,
+        medicine_price: medicine.price
+      });
       setIsSubmitted(true);
       toast.success('Order placed successfully!');
-    }, 1500);
+    } catch (error) {
+      console.error('Order placement failed');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -1,32 +1,58 @@
-import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Search, Image as ImageIcon, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getMedicines, deleteMedicine } from '../api/medicines';
 
 const MedicineManagement = () => {
-  const [medicines, setMedicines] = useState([
-    { id: 1, name: 'Arnica Montana', price: 299, category: 'Pain Relief' },
-    { id: 2, name: 'Nux Vomica', price: 349, category: 'Digestion' },
-    { id: 3, name: 'Belladonna', price: 199, category: 'Fever' },
-  ]);
+  const [medicines, setMedicines] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this medicine?')) {
-      setMedicines(medicines.filter(m => m.id !== id));
-      toast.success('Medicine deleted successfully');
+  useEffect(() => {
+    fetchMedicines();
+  }, []);
+
+  const fetchMedicines = async () => {
+    try {
+      const data = await getMedicines();
+      setMedicines(data);
+    } catch (error) {
+      console.error('Failed to fetch medicines');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this medicine?')) {
+      try {
+        await deleteMedicine(id);
+        setMedicines(medicines.filter(m => m.id !== id));
+        toast.success('Medicine deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete medicine');
+      }
+    }
+  };
+
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search catalog..." 
-            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary outline-none"
-          />
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center w-full py-20">
+            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+          </div>
+        ) : (
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search catalog..." 
+              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary outline-none"
+            />
+          </div>
+        )}
+
         <button className="flex items-center space-x-2 px-6 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
           <Plus className="h-5 w-5" />
           <span>Add Medicine</span>

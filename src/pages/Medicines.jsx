@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MedicineCard from '../components/MedicineCard';
 import OrderModal from '../components/OrderModal';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Loader2 } from 'lucide-react';
+import { getMedicines } from '../api/medicines';
 
 const Medicines = () => {
+  const [medicines, setMedicines] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedMedicine, setSelectedMedicine] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const medicines = [
-    { id: 1, name: 'Arnica Montana', price: 299, description: 'Excellent for muscular pains, bruises, and post-injury recovery.', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500' },
-    { id: 2, name: 'Nux Vomica', price: 349, description: 'Relieves digestive issues, acid reflux, and stress-related ailments.', image: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&q=80&w=500' },
-    { id: 3, name: 'Belladonna', price: 199, description: 'Effective for high fever, sudden inflammations, and throbbing headaches.', image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?auto=format&fit=crop&q=80&w=500' },
-    { id: 4, name: 'Rhus Tox', price: 249, description: 'Best for joint pains that improve with movement and skin rashes.', image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&q=80&w=500' },
-    { id: 5, name: 'Aconite Napellus', price: 179, description: 'First remedy for sudden onset of cold, fever, or acute anxiety.', image: 'https://images.unsplash.com/photo-1550572017-ed20015ade7d?auto=format&fit=crop&q=80&w=500' },
-    { id: 6, name: 'Pulsatilla', price: 399, description: 'Ideal for respiratory issues, earaches, and hormonal imbalances.', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbbb88?auto=format&fit=crop&q=80&w=500' },
-  ];
+  useEffect(() => {
+    fetchMedicines();
+  }, []);
+
+  const fetchMedicines = async () => {
+    try {
+      const data = await getMedicines();
+      setMedicines(data);
+    } catch (error) {
+      console.error('Failed to fetch medicines');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const filteredMedicines = medicines.filter(m => 
     m.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,7 +67,12 @@ const Medicines = () => {
         </div>
 
         {/* Catalog Grid */}
-        {filteredMedicines.length > 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32">
+            <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+            <p className="text-slate-500 font-medium">Loading our natural remedies...</p>
+          </div>
+        ) : filteredMedicines.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
             {filteredMedicines.map((medicine) => (
               <MedicineCard 
@@ -68,6 +83,7 @@ const Medicines = () => {
             ))}
           </div>
         ) : (
+
           <div className="text-center py-32 bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-300 dark:border-slate-800">
             <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
               <Search className="h-10 w-10 text-slate-300" />

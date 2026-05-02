@@ -1,31 +1,56 @@
-import React, { useState } from 'react';
-import { Search, Filter, EllipsisVertical, CheckCircle, Clock, PhoneCall } from 'lucide-react';
-
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, EllipsisVertical, CheckCircle, Clock, PhoneCall, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getAdminOrders, updateOrderStatus } from '../api/orders';
 
 const OrderManagement = () => {
-  const [orders, setOrders] = useState([
-    { id: '#ORD-7712', name: 'Rahul Verma', phone: '9876543210', medicine: 'Arnica Montana', status: 'Pending', date: '2024-05-01' },
-    { id: '#ORD-7711', name: 'Anita Singh', phone: '9876543211', medicine: 'Nux Vomica', status: 'Contacted', date: '2024-05-01' },
-    { id: '#ORD-7710', name: 'Suresh Kumar', phone: '9876543212', medicine: 'Belladonna', status: 'Completed', date: '2024-04-30' },
-  ]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const updateStatus = (id, newStatus) => {
-    setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
-    toast.success(`Order status updated to ${newStatus}`);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const data = await getAdminOrders();
+      setOrders(data);
+    } catch (error) {
+      console.error('Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleUpdateStatus = async (id, newStatus) => {
+    try {
+      await updateOrderStatus(id, newStatus);
+      setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
+      toast.success(`Order status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Failed to update order status');
+    }
+  };
+
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search orders..." 
-            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary outline-none"
-          />
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center w-full py-20">
+            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+          </div>
+        ) : (
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search orders..." 
+              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary outline-none"
+            />
+          </div>
+        )}
+
         <div className="flex gap-4">
            <button className="flex items-center space-x-2 px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 transition-all">
             <Filter className="h-5 w-5 text-slate-500" />
@@ -69,7 +94,7 @@ const OrderManagement = () => {
                   <div className="flex items-center space-x-2">
                     {order.status === 'Pending' && (
                       <button 
-                        onClick={() => updateStatus(order.id, 'Contacted')}
+                        onClick={() => handleUpdateStatus(order.id, 'Contacted')}
                         className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
                       >
                         Mark Contacted
@@ -77,12 +102,13 @@ const OrderManagement = () => {
                     )}
                     {order.status === 'Contacted' && (
                       <button 
-                        onClick={() => updateStatus(order.id, 'Completed')}
+                        onClick={() => handleUpdateStatus(order.id, 'Completed')}
                         className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors"
                       >
                         Mark Completed
                       </button>
                     )}
+
                     <button className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
                       <EllipsisVertical className="h-5 w-5" />
                     </button>

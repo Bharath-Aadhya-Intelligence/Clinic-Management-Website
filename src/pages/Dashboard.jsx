@@ -1,13 +1,35 @@
-import React from 'react';
-import { ShoppingBag, ListChecks, Clock, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, ListChecks, Clock, TrendingUp, Loader2 } from 'lucide-react';
+import { getTodayStats, getMonthlyStats } from '../api/analytics';
 
 const Dashboard = () => {
-  const stats = [
-    { name: 'Total Medicines', value: '42', icon: ShoppingBag, color: 'bg-blue-500' },
-    { name: 'Total Orders', value: '156', icon: ListChecks, color: 'bg-purple-500' },
-    { name: 'Pending Orders', value: '12', icon: Clock, color: 'bg-orange-500' },
-    { name: 'Monthly Revenue', value: '₹45,200', icon: TrendingUp, color: 'bg-emerald-500' },
-  ];
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [today, monthly] = await Promise.all([
+        getTodayStats(),
+        getMonthlyStats()
+      ]);
+      
+      setStats([
+        { name: 'Today\'s Visits', value: today.count, icon: ListChecks, color: 'bg-blue-500' },
+        { name: 'Monthly Visits', value: monthly.total_visits, icon: TrendingUp, color: 'bg-emerald-500' },
+        { name: 'Total Medicines', value: '...', icon: ShoppingBag, color: 'bg-purple-500' }, // This could come from medicines API
+        { name: 'Pending Orders', value: '...', icon: Clock, color: 'bg-orange-500' }, // This could come from orders API
+      ]);
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const recentOrders = [
     { id: '#ORD-7712', customer: 'Rahul Verma', medicine: 'Arnica Montana', status: 'Pending', date: '2 mins ago' },
@@ -19,20 +41,27 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div key={stat.name} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-2xl ${stat.color} text-white`}>
-                <stat.icon className="h-6 w-6" />
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat) => (
+            <div key={stat.name} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-2xl ${stat.color} text-white`}>
+                  <stat.icon className="h-6 w-6" />
+                </div>
+                <span className="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">+12%</span>
               </div>
-              <span className="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">+12%</span>
+              <h3 className="text-slate-500 text-sm font-medium">{stat.name}</h3>
+              <p className="text-2xl font-bold mt-1">{stat.value}</p>
             </div>
-            <h3 className="text-slate-500 text-sm font-medium">{stat.name}</h3>
-            <p className="text-2xl font-bold mt-1">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

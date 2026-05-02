@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { loginAdmin } from '../api/auth';
+
 
 const AuthContext = createContext();
 
@@ -15,16 +17,21 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (email, password) => {
-    // Mock login
-    if (email === 'admin@homeopathy.com' && password === 'admin123') {
-      const mockToken = 'mock-jwt-token';
-      localStorage.setItem('admin_token', mockToken);
-      setUser({ role: 'admin' });
-      return true;
+  const login = async (username, password) => {
+    try {
+      const data = await loginAdmin(username, password);
+      if (data.access_token) {
+        localStorage.setItem('admin_token', data.access_token);
+        setUser({ role: 'admin' });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
+
 
   const logout = () => {
     localStorage.removeItem('admin_token');

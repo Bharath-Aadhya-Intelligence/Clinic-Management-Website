@@ -5,13 +5,21 @@ export const getMedicines = async () => {
   return response.data;
 };
 
-export const createMedicine = async (medicineData) => {
-  const response = await client.post('/medicines/admin', medicineData);
+export const createMedicine = async (formData) => {
+  const response = await client.post('/medicines/admin', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 
-export const updateMedicine = async (id, medicineData) => {
-  const response = await client.put(`/medicines/admin/${id}`, medicineData);
+export const updateMedicine = async (id, formData) => {
+  const response = await client.put(`/medicines/admin/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

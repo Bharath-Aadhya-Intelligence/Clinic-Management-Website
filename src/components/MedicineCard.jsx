@@ -6,7 +6,9 @@ const MedicineCard = ({ medicine, onOrder }) => {
     <div className="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 transition-all hover:shadow-2xl hover:-translate-y-2">
       <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
         <img 
-          src={medicine.image || `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id}`} 
+          src={medicine.image_filename 
+            ? `${import.meta.env.VITE_API_URL}/static/medicines/${medicine.image_filename}` 
+            : `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id}`} 
           alt={medicine.name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />

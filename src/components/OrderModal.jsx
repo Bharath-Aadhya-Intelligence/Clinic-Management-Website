@@ -33,7 +33,7 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
         medicine_price: medicine.price
       });
       setIsSubmitted(true);
-      toast.success('Order placed successfully!');
+      toast.success('Our team will contact you within two days.');
     } catch (error) {
       console.error('Order placement failed');
     } finally {
@@ -132,8 +132,8 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
               <CheckCircle className="h-12 w-12 text-green-500" />
             </div>
             <h2 className="text-3xl font-bold mb-4">Order Received!</h2>
-            <p className="text-slate-500 mb-8 max-w-xs mx-auto">
-              Thank you! Our team will contact you within 2 business days to confirm your delivery.
+            <p className="text-slate-500 mb-8 max-w-xs mx-auto text-lg font-medium">
+              Our team will contact you within two days.
             </p>
             <button
               onClick={onClose}

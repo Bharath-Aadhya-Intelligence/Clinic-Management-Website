@@ -17,9 +17,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (email, password) => {
     try {
-      const data = await loginAdmin(username, password);
+      const data = await loginAdmin(email, password);
       if (data.access_token) {
         localStorage.setItem('admin_token', data.access_token);
         setUser({ role: 'admin' });

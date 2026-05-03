@@ -15,18 +15,19 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API delay
-    setTimeout(() => {
-      const success = login(email, password);
-      setIsLoading(false);
-      
+    try {
+      const success = await login(email, password);
       if (success) {
         toast.success('Welcome back, Admin!');
         navigate('/admin/dashboard');
       } else {
         toast.error('Invalid credentials. Please try again.');
       }
-    }, 1500);
+    } catch (error) {
+      toast.error('An error occurred during login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

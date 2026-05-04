@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { loginAdmin } from '../api/auth';
 
 
@@ -11,8 +12,23 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
     if (token) {
-      // In a real app, we'd decode and verify the token
-      setUser({ role: 'admin' });
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.exp * 1000 > Date.now()) {
+          setUser({ role: 'admin', username: decoded.sub });
+        } else {
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (!refreshToken) {
+            localStorage.removeItem('admin_token');
+            setUser(null);
+          } else {
+            setUser({ role: 'admin', username: decoded.sub });
+          }
+        }
+      } catch (error) {
+        localStorage.removeItem('admin_token');
+        setUser(null);
+      }
     }
     setLoading(false);
   }, []);
@@ -22,6 +38,7 @@ export const AuthProvider = ({ children }) => {
       const data = await loginAdmin(email, password);
       if (data.access_token) {
         localStorage.setItem('admin_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
         setUser({ role: 'admin' });
         return true;
       }
@@ -35,6 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('admin_token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
   };
 

@@ -74,14 +74,16 @@ const OrderManagement = () => {
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <td className="px-8 py-6">
-                  <p className="font-bold">{order.id}</p>
-                  <p className="text-xs text-slate-400 mt-1">{order.date}</p>
+                  <p className="font-bold text-xs text-slate-400">#{(order.id || order._id)?.substring(0, 8)}</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}
+                  </p>
                 </td>
                 <td className="px-8 py-6">
-                  <p className="font-semibold">{order.name}</p>
-                  <p className="text-sm text-slate-500">{order.phone}</p>
+                  <p className="font-semibold">{order.customer_name}</p>
+                  <p className="text-sm text-slate-500">{order.phone_number}</p>
                 </td>
-                <td className="px-8 py-6 text-sm">{order.medicine}</td>
+                <td className="px-8 py-6 text-sm font-medium">{order.medicine_name}</td>
                 <td className="px-8 py-6">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center w-fit space-x-1 ${order.status === 'Pending' ? 'bg-orange-100 text-orange-600' : order.status === 'Contacted' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
                     {order.status === 'Pending' && <Clock className="h-3 w-3" />}

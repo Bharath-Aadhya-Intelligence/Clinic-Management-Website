@@ -35,7 +35,8 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
       setIsSubmitted(true);
       toast.success('Our team will contact you within two days.');
     } catch (error) {
-      console.error('Order placement failed');
+      console.error('Order placement failed:', error);
+      toast.error(error.response?.data?.detail || 'Failed to place order. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

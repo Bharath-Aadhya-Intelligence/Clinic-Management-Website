@@ -1,8 +1,10 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const client = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+  baseURL: `${API_URL}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -33,24 +35,25 @@ client.interceptors.response.use(
       
       if (refreshToken) {
         try {
-          // Import refreshAccessToken here to avoid circular dependencies if needed
-          // but usually auth.js is separate
-          const { refreshAccessToken } = await import('./auth');
-          const data = await refreshAccessToken(refreshToken);
+          // Use a direct axios call to avoid circular dependencies with auth.js
+          const formData = new URLSearchParams();
+          formData.append('refresh_token', refreshToken);
+          
+          const { data } = await axios.post(`${API_URL}/api/v1/auth/refresh`, formData, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+          });
           
           if (data.access_token) {
             localStorage.setItem('admin_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
-            client.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
-            return client(originalRequest);
+            originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+            return axios(originalRequest);
           }
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
           localStorage.removeItem('admin_token');
           localStorage.removeItem('refresh_token');
-          if (!window.location.pathname.includes('/admin/login')) {
-            window.location.href = '/admin/login';
-          }
+          window.location.href = '/admin/login';
         }
       }
     }

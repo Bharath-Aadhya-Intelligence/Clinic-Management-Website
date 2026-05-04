@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, ListChecks, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import { getTodayStats, getMonthlyStats } from '../api/analytics';
+import { getAdminOrders } from '../api/orders';
 
 const Dashboard = () => {
   const [stats, setStats] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,31 +14,27 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [today, monthly] = await Promise.all([
+      const [today, monthly, orders] = await Promise.all([
         getTodayStats(),
-        getMonthlyStats()
+        getMonthlyStats(),
+        getAdminOrders()
       ]);
       
       setStats([
-        { name: 'Today\'s Visits', value: today.count, icon: ListChecks, color: 'bg-blue-500' },
-        { name: 'Monthly Visits', value: monthly.total_visits, icon: TrendingUp, color: 'bg-emerald-500' },
-        { name: 'Total Medicines', value: '...', icon: ShoppingBag, color: 'bg-purple-500' }, // This could come from medicines API
-        { name: 'Pending Orders', value: '...', icon: Clock, color: 'bg-orange-500' }, // This could come from orders API
+        { name: 'Today\'s Visits', value: today.today_visit_count || 0, icon: ListChecks, color: 'bg-blue-500' },
+        { name: 'Monthly Visits', value: monthly.monthly_visit_count || 0, icon: TrendingUp, color: 'bg-emerald-500' },
+        { name: 'Total Medicines', value: today.total_medicines || 0, icon: ShoppingBag, color: 'bg-purple-500' },
+        { name: 'Pending Orders', value: today.pending_orders || 0, icon: Clock, color: 'bg-orange-500' },
       ]);
+
+      // Get latest 4 orders for the dashboard
+      setRecentOrders(orders.slice(0, 4));
     } catch (error) {
       console.error('Failed to fetch dashboard stats');
     } finally {
       setLoading(false);
     }
   };
-
-
-  const recentOrders = [
-    { id: '#ORD-7712', customer: 'Rahul Verma', medicine: 'Arnica Montana', status: 'Pending', date: '2 mins ago' },
-    { id: '#ORD-7711', customer: 'Anita Singh', medicine: 'Nux Vomica', status: 'Contacted', date: '1 hour ago' },
-    { id: '#ORD-7710', customer: 'Suresh Kumar', medicine: 'Belladonna', status: 'Completed', date: '3 hours ago' },
-    { id: '#ORD-7709', customer: 'Meena Devi', medicine: 'Rhus Tox', status: 'Completed', date: '5 hours ago' },
-  ];
 
   return (
     <div className="space-y-8">
@@ -84,15 +82,17 @@ const Dashboard = () => {
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="px-8 py-4 font-bold text-sm">{order.id}</td>
-                    <td className="px-8 py-4 text-sm">{order.customer}</td>
-                    <td className="px-8 py-4 text-sm">{order.medicine}</td>
+                    <td className="px-8 py-4 font-bold text-xs text-slate-400">#{(order.id || order._id)?.substring(0, 8)}</td>
+                    <td className="px-8 py-4 text-sm font-medium">{order.customer_name}</td>
+                    <td className="px-8 py-4 text-sm">{order.medicine_name}</td>
                     <td className="px-8 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${order.status === 'Pending' ? 'bg-orange-100 text-orange-600' : order.status === 'Contacted' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-8 py-4 text-xs text-slate-400">{order.date}</td>
+                    <td className="px-8 py-4 text-xs text-slate-400">
+                      {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}
+                    </td>
                   </tr>
                 ))}
               </tbody>

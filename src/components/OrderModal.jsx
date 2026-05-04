@@ -15,6 +15,13 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setIsSubmitted(false);
+      setFormData({ name: '', phone: '', address: '' });
+    }
+  }, [isOpen]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.phone.length !== 10 || !/^\d+$/.test(formData.phone)) {

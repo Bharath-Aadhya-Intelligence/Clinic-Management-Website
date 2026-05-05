@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
@@ -19,7 +19,7 @@ import OrderManagement from './pages/OrderManagement';
 const App = () => {
   return (
     <AuthProvider>
-      <Router basename="/Clinic-Management-Website">
+      <Router>
         <Toaster position="top-right" />
         <Routes>
           {/* Public Routes */}

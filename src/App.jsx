@@ -19,7 +19,7 @@ import OrderManagement from './pages/OrderManagement';
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/Clinic-Management-Website">
         <Toaster position="top-right" />
         <Routes>
           {/* Public Routes */}

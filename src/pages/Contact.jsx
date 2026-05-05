@@ -11,7 +11,7 @@ const Contact = () => {
 
   const contactInfo = [
     { icon: Phone, title: 'Call Us', detail: '+91 98765 43210', sub: 'Mon-Sat, 9am - 6pm' },
-    { icon: Mail, title: 'Email Us', detail: 'info@homeocare.com', sub: '24/7 Support' },
+    { icon: Mail, title: 'Email Us', detail: 'info@homeopathyhospital.com', sub: '24/7 Support' },
     { icon: MapPin, title: 'Visit Us', detail: '123 Healing St, City', sub: 'Wellness District' },
   ];
 

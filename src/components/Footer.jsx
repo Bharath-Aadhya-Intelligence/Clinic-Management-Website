@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="space-y-4">
           <div className="flex items-center space-x-2 text-white">
             <Pill className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">HomeoCare</span>
+            <span className="text-xl font-bold">Homeopathy Hospital</span>
           </div>
           <p className="text-sm leading-relaxed">
             Providing holistic healing through traditional homeopathy combined with modern medical standards. Over 20 years of excellence in patient care.
@@ -60,14 +60,14 @@ const Footer = () => {
             </li>
             <li className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-primary shrink-0" />
-              <span>info@homeocarehospital.com</span>
+              <span>info@homeopathyhospital.com</span>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-slate-800 text-center text-sm">
-        <p>&copy; {new Date().getFullYear()} HomeoCare Hospital Management System. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Homeopathy Hospital Management System. All rights reserved.</p>
       </div>
     </footer>
   );

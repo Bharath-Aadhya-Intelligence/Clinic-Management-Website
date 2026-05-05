@@ -4,7 +4,7 @@ import doctorImg from '../assets/doctor.png';
 
 const About = () => {
   const milestones = [
-    { year: '2004', event: 'HomeoCare Hospital Founded' },
+    { year: '2004', event: 'Homeopathy Hospital Founded' },
     { year: '2010', event: 'Reached 5,000 Treated Patients' },
     { year: '2015', event: 'Best Alternative Medicine Clinic Award' },
     { year: '2022', event: 'Launched Online Medicine Catalog' },
@@ -17,7 +17,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">Our Story & Legacy</h1>
           <p className="text-xl text-slate-500 max-w-3xl mx-auto">
-            Healing humanity through nature since 2004. Discover the journey of HomeoCare Hospital and our commitment to holistic health.
+            Healing humanity through nature since 2004. Discover the journey of Homeopathy Hospital and our commitment to holistic health.
           </p>
         </div>
       </section>
@@ -29,7 +29,7 @@ const About = () => {
             <h2 className="text-3xl font-bold mb-6">A Legacy of Excellence</h2>
             <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed">
               <p>
-                Founded in 2004 by Dr. S. K. Sharma, HomeoCare Hospital began as a small clinic with a big vision: to make high-quality homeopathic care accessible to everyone. 
+                Founded in 2004 by Dr. S. K. Sharma, Homeopathy Hospital began as a small clinic with a big vision: to make high-quality homeopathic care accessible to everyone. 
               </p>
               <p>
                 Over the past two decades, we have grown into a multi-specialty homeopathic center, treating everything from common allergies to chronic autoimmune conditions. Our approach combines the traditional laws of homeopathy with modern diagnostic insights.

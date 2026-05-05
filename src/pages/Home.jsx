@@ -30,7 +30,7 @@ const Home = () => {
             <span className="text-primary-light">For Your Family</span>
           </h1>
           <p className="text-xl md:text-2xl mb-10 max-w-2xl text-slate-200">
-            Welcome to HomeoCare Hospital. We provide personalized homeopathic treatments that address the root cause of your health issues.
+            Welcome to Homeopathy Hospital. We provide personalized homeopathic treatments that address the root cause of your health issues.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
@@ -80,7 +80,7 @@ const Home = () => {
                 <span className="text-primary">Modern Healthcare</span>
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                HomeoCare Hospital was founded on the principle that true health comes from balance. Our expert doctors use specialized homeopathic remedies to stimulate the body's natural healing processes.
+                Homeopathy Hospital was founded on the principle that true health comes from balance. Our expert doctors use specialized homeopathic remedies to stimulate the body's natural healing processes.
               </p>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                 Whether you're dealing with chronic conditions or looking for preventive care, our team is here to guide you on your journey to wellness.

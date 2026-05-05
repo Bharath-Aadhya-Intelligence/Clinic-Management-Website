@@ -14,3 +14,10 @@ export const getReminders = async () => {
   const response = await client.get('/analytics/reminders');
   return response.data;
 };
+
+export const downloadOrderReport = async () => {
+  const response = await client.get('/analytics/reports/orders', {
+    responseType: 'blob'
+  });
+  return response.data;
+};

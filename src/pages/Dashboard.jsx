@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, ListChecks, Clock, TrendingUp, Loader2 } from 'lucide-react';
-import { getTodayStats, getMonthlyStats } from '../api/analytics';
+import { getTodayStats, getMonthlyStats, downloadOrderReport } from '../api/analytics';
 import { getAdminOrders } from '../api/orders';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -42,29 +42,8 @@ const Dashboard = () => {
   const handleGenerateReport = async () => {
     try {
       toast.loading('Generating report...', { id: 'report' });
-      const orders = await getAdminOrders();
+      const blob = await downloadOrderReport();
       
-      if (!orders || orders.length === 0) {
-        toast.error('No orders found to generate report', { id: 'report' });
-        return;
-      }
-
-      const headers = ['Order ID', 'Customer Name', 'Phone Number', 'Medicine', 'Price', 'Status', 'Date'];
-      const csvData = orders.map(order => [
-        `#${(order.id || order._id)?.substring(0, 8)}`,
-        order.customer_name,
-        order.phone_number,
-        order.medicine_name,
-        order.medicine_price,
-        order.status,
-        order.order_date ? new Date(order.order_date).toLocaleString() : 'N/A'
-      ]);
-
-      // Wrap each field in quotes to handle commas within values (like in the date string)
-      const csvContent = [headers, ...csvData]
-        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
-        .join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
@@ -74,10 +53,10 @@ const Dashboard = () => {
       link.click();
       document.body.removeChild(link);
       
-      toast.success('Order report generated successfully!', { id: 'report' });
+      toast.success('Order report downloaded!', { id: 'report' });
     } catch (error) {
-      console.error('Report generation failed:', error);
-      toast.error('Failed to generate report', { id: 'report' });
+      console.error('Report download failed:', error);
+      toast.error('Failed to download report', { id: 'report' });
     }
   };
 

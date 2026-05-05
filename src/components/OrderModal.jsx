@@ -24,11 +24,6 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.phone.length !== 10 || !/^\d+$/.test(formData.phone)) {
-      toast.error('Please enter a valid 10-digit phone number');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       await placeOrder({
@@ -43,7 +38,13 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
       toast.success('Our team will contact you within two days.');
     } catch (error) {
       console.error('Order placement failed:', error);
-      toast.error(error.response?.data?.detail || 'Failed to place order. Please try again.');
+      // Handle Pydantic validation errors or general backend errors
+      const errorMsg = error.response?.data?.detail;
+      if (Array.isArray(errorMsg)) {
+        toast.error(errorMsg[0]?.msg || 'Validation failed');
+      } else {
+        toast.error(errorMsg || 'Failed to place order. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

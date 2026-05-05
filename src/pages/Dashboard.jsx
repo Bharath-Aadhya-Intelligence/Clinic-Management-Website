@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, ListChecks, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import { getTodayStats, getMonthlyStats } from '../api/analytics';
 import { getAdminOrders } from '../api/orders';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const [stats, setStats] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStats();
@@ -33,6 +36,45 @@ const Dashboard = () => {
       console.error('Failed to fetch dashboard stats');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      toast.loading('Generating report...', { id: 'report' });
+      const orders = await getAdminOrders();
+      
+      if (!orders || orders.length === 0) {
+        toast.error('No orders found to generate report', { id: 'report' });
+        return;
+      }
+
+      const headers = ['Order ID', 'Customer Name', 'Phone Number', 'Medicine', 'Price', 'Status', 'Date'];
+      const csvData = orders.map(order => [
+        `#${(order.id || order._id)?.substring(0, 8)}`,
+        order.customer_name,
+        order.phone_number,
+        order.medicine_name,
+        order.medicine_price,
+        order.status,
+        order.order_date ? new Date(order.order_date).toLocaleString() : 'N/A'
+      ]);
+
+      const csvContent = [headers, ...csvData].map(e => e.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clinic_order_report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Order report generated successfully!', { id: 'report' });
+    } catch (error) {
+      console.error('Report generation failed:', error);
+      toast.error('Failed to generate report', { id: 'report' });
     }
   };
 
@@ -66,7 +108,12 @@ const Dashboard = () => {
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <h3 className="text-xl font-bold">Recent Orders</h3>
-            <button className="text-primary font-bold text-sm hover:underline">View All</button>
+            <button 
+              onClick={() => navigate('/admin/orders')}
+              className="text-primary font-bold text-sm hover:underline"
+            >
+              View All
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -103,11 +150,17 @@ const Dashboard = () => {
         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm p-8">
           <h3 className="text-xl font-bold mb-6">Quick Actions</h3>
           <div className="space-y-4">
-            <button className="w-full py-4 rounded-2xl bg-primary text-white font-bold hover:bg-primary-dark transition-all flex items-center justify-center space-x-2">
+            <button 
+              onClick={() => navigate('/admin/medicines')}
+              className="w-full py-4 rounded-2xl bg-primary text-white font-bold hover:bg-primary-dark transition-all flex items-center justify-center space-x-2 active:scale-95"
+            >
               <ShoppingBag className="h-5 w-5" />
               <span>Add New Medicine</span>
             </button>
-            <button className="w-full py-4 rounded-2xl border border-slate-200 dark:border-slate-800 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center space-x-2">
+            <button 
+              onClick={handleGenerateReport}
+              className="w-full py-4 rounded-2xl border border-slate-200 dark:border-slate-800 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center space-x-2 active:scale-95"
+            >
               <ListChecks className="h-5 w-5 text-slate-500" />
               <span>Generate Order Report</span>
             </button>
@@ -126,3 +179,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

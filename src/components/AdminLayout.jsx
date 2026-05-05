@@ -22,7 +22,8 @@ const AdminLayout = ({ children }) => {
       <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col">
         <div className="p-8">
           <Link to="/" className="text-xl font-bold text-primary flex items-center space-x-2">
-            <span>AdminPanel</span>
+            <img src="/logo.png" alt="Logo" className="h-8 w-8" />
+            <span>Admin Portal</span>
           </Link>
         </div>
         

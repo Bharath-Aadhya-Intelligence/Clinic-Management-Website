@@ -26,9 +26,9 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Pill className="h-8 w-8 text-primary" />
+              <img src="/logo.png" alt="Logo" className="h-10 w-10" />
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                HomeoCare Hospital
+                Homeopathy Hospital
               </span>
             </Link>
           </div>

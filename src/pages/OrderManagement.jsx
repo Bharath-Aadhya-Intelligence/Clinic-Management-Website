@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, EllipsisVertical, CheckCircle, Clock, PhoneCall, Loader2 } from 'lucide-react';
+import { Search, Filter, EllipsisVertical, CheckCircle, Clock, PhoneCall, Loader2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getAdminOrders, updateOrderStatus } from '../api/orders';
+import { getAdminOrders, updateOrderStatus, clearAllOrders } from '../api/orders';
 import OrderDetailModal from '../components/OrderDetailModal';
 
 const OrderManagement = () => {
@@ -9,6 +9,7 @@ const OrderManagement = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -22,6 +23,22 @@ const OrderManagement = () => {
       console.error('Failed to fetch orders');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (window.confirm('Are you absolutely sure you want to clear ALL order history? This action cannot be undone.')) {
+      setIsClearing(true);
+      try {
+        await clearAllOrders();
+        setOrders([]);
+        toast.success('All order history has been cleared.');
+      } catch (error) {
+        console.error('Failed to clear orders');
+        toast.error('Failed to clear order history.');
+      } finally {
+        setIsClearing(false);
+      }
     }
   };
 
@@ -61,6 +78,14 @@ const OrderManagement = () => {
         )}
 
         <div className="flex gap-4">
+          <button 
+            onClick={handleClearHistory}
+            disabled={isClearing || orders.length === 0}
+            className={`flex items-center space-x-2 px-6 py-4 rounded-2xl font-bold transition-all shadow-lg active:scale-95 ${orders.length === 0 ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none' : 'bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 shadow-red-500/10'}`}
+          >
+            <Trash2 className="h-5 w-5" />
+            <span>{isClearing ? 'Clearing...' : 'Clear All History'}</span>
+          </button>
            <button className="flex items-center space-x-2 px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 transition-all">
             <Filter className="h-5 w-5 text-slate-500" />
             <span>Filter</span>

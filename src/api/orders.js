@@ -19,3 +19,8 @@ export const deleteOrder = async (id) => {
   const response = await client.delete(`/orders/admin/${id}`);
   return response.data;
 };
+
+export const clearAllOrders = async () => {
+  const response = await client.delete('/orders/admin/clear-all');
+  return response.data;
+};

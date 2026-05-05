@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, EllipsisVertical, CheckCircle, Clock, PhoneCall, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getAdminOrders, updateOrderStatus } from '../api/orders';
+import OrderDetailModal from '../components/OrderDetailModal';
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -22,7 +25,8 @@ const OrderManagement = () => {
     }
   };
 
-  const handleUpdateStatus = async (id, newStatus) => {
+  const handleUpdateStatus = async (id, newStatus, e) => {
+    e.stopPropagation(); // Prevent opening modal when clicking status button
     try {
       await updateOrderStatus(id, newStatus);
       setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
@@ -30,6 +34,11 @@ const OrderManagement = () => {
     } catch (error) {
       console.error('Failed to update order status');
     }
+  };
+
+  const handleRowClick = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
   };
 
 
@@ -72,9 +81,13 @@ const OrderManagement = () => {
           </thead>
           <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <tr 
+                key={order.id} 
+                onClick={() => handleRowClick(order)}
+                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+              >
                 <td className="px-8 py-6">
-                  <p className="font-bold text-xs text-slate-400">#{(order.id || order._id)?.substring(0, 8)}</p>
+                  <p className="font-bold text-xs text-slate-400 group-hover:text-primary transition-colors">#{(order.id || order._id)?.substring(0, 8)}</p>
                   <p className="text-xs text-slate-500 mt-1">
                     {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}
                   </p>
@@ -96,7 +109,7 @@ const OrderManagement = () => {
                   <div className="flex items-center space-x-2">
                     {order.status === 'Pending' && (
                       <button 
-                        onClick={() => handleUpdateStatus(order.id, 'Contacted')}
+                        onClick={(e) => handleUpdateStatus(order.id, 'Contacted', e)}
                         className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
                       >
                         Mark Contacted
@@ -104,14 +117,17 @@ const OrderManagement = () => {
                     )}
                     {order.status === 'Contacted' && (
                       <button 
-                        onClick={() => handleUpdateStatus(order.id, 'Completed')}
+                        onClick={(e) => handleUpdateStatus(order.id, 'Completed', e)}
                         className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors"
                       >
                         Mark Completed
                       </button>
                     )}
 
-                    <button className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); }}
+                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
+                    >
                       <EllipsisVertical className="h-5 w-5" />
                     </button>
 
@@ -122,8 +138,15 @@ const OrderManagement = () => {
           </tbody>
         </table>
       </div>
+
+      <OrderDetailModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        order={selectedOrder}
+      />
     </div>
   );
 };
 
 export default OrderManagement;
+

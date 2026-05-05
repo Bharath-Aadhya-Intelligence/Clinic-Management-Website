@@ -18,7 +18,9 @@ const MedicineModal = ({ isOpen, onClose, onSave, medicine = null }) => {
         price: medicine.price || '',
         description: medicine.description || '',
       });
-      if (medicine.image_filename) {
+      if (medicine.image_data) {
+        setPreview(medicine.image_data);
+      } else if (medicine.image_filename) {
         setPreview(`${import.meta.env.VITE_API_URL}/static/medicines/${medicine.image_filename}`);
       }
     } else {

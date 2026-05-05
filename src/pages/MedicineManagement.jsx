@@ -114,9 +114,9 @@ const MedicineManagement = () => {
                     <td className="px-8 py-4">
                       <div className="flex items-center space-x-4">
                         <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700">
-                          {medicine.image_filename ? (
+                          {medicine.image_data || medicine.image_filename ? (
                             <img 
-                              src={`${import.meta.env.VITE_API_URL}/static/medicines/${medicine.image_filename}`} 
+                              src={medicine.image_data || `${import.meta.env.VITE_API_URL}/static/medicines/${medicine.image_filename}`} 
                               alt={medicine.name} 
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               onError={(e) => {

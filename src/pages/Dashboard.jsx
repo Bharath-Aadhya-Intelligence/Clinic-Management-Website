@@ -60,7 +60,10 @@ const Dashboard = () => {
         order.order_date ? new Date(order.order_date).toLocaleString() : 'N/A'
       ]);
 
-      const csvContent = [headers, ...csvData].map(e => e.join(',')).join('\n');
+      // Wrap each field in quotes to handle commas within values (like in the date string)
+      const csvContent = [headers, ...csvData]
+        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');

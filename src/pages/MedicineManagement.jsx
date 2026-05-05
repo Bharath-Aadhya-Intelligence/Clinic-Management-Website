@@ -119,6 +119,10 @@ const MedicineManagement = () => {
                               src={`${import.meta.env.VITE_API_URL}/static/medicines/${medicine.image_filename}`} 
                               alt={medicine.name} 
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                              }}
                             />
                           ) : (
                             <ImageIcon className="h-6 w-6 text-slate-400" />

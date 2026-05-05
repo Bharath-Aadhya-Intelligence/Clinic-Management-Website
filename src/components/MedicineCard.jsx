@@ -11,6 +11,10 @@ const MedicineCard = ({ medicine, onOrder }) => {
             : `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id}`} 
           alt={medicine.name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id}`;
+          }}
         />
         <div className="absolute top-4 right-4">
           <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-slate-900 text-xs font-bold rounded-full shadow-sm">

@@ -68,4 +68,9 @@ The application follows a **Premium & Clean** aesthetic, utilizing:
 - **Vibrant Palettes**: A curated mix of medical emerald and professional slate tones.
 
 ---
+## 👨‍💻 Developed By
+
+- **Yashwant Rangrej** - [GitHub Profile](https://github.com/Yashwant-Rangrej)
+- **Manoj Arya** - [GitHub Profile](https://github.com/Manojarya0207)
+
 Built with ❤️ for Homeopathy Hospital.

@@ -1,9 +1,36 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Users, Clock, Award } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Users, Clock, Award, Sparkles } from 'lucide-react';
+import { getMedicines } from '../api/medicines';
+import MedicineCard from '../components/MedicineCard';
+import OrderModal from '../components/OrderModal';
 import heroImage from '../assets/hero.png';
 
 const Home = () => {
+  const [featuredMedicines, setFeaturedMedicines] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [selectedMedicine, setSelectedMedicine] = React.useState(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const data = await getMedicines();
+        setFeaturedMedicines(data.slice(0, 3));
+      } catch (error) {
+        console.error('Failed to fetch featured medicines');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeatured();
+  }, []);
+
+  const handleOrder = (medicine) => {
+    setSelectedMedicine(medicine);
+    setIsModalOpen(true);
+  };
+
   const stats = [
     { label: 'Years of Experience', value: '20+', icon: Clock },
     { label: 'Happy Patients', value: '15,000+', icon: Users },
@@ -117,38 +144,45 @@ const Home = () => {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Placeholder for 3 featured cards */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="group relative overflow-hidden rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 transition-all hover:-translate-y-2 hover:shadow-xl">
-                 <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded-2xl mb-6 overflow-hidden">
-                    <img 
-                      src={`https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${i}`}
-                      alt="Medicine"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                 </div>
-                 <h3 className="text-xl font-bold mb-2">Remedy Pack {i}</h3>
-                 <p className="text-primary font-bold text-lg mb-4">₹ 499.00</p>
-                 <Link 
-                   to="/medicines" 
-                   className="block w-full py-3 text-center rounded-xl bg-slate-900 text-white font-semibold hover:bg-primary transition-colors"
-                 >
-                   View Details
-                 </Link>
-              </div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="aspect-[4/5] bg-slate-100 dark:bg-slate-900 animate-pulse rounded-3xl" />
+              ))}
+            </div>
+          ) : featuredMedicines.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+              {featuredMedicines.map((medicine) => (
+                <MedicineCard 
+                  key={medicine.id} 
+                  medicine={medicine} 
+                  onOrder={handleOrder} 
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-slate-50 dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-300 dark:border-slate-800">
+              <Sparkles className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">New remedies arriving soon!</p>
+            </div>
+          )}
+          
           <div className="text-center mt-16">
             <Link 
               to="/medicines" 
-              className="inline-flex items-center px-8 py-3 border-2 border-primary text-primary font-bold rounded-full hover:bg-primary hover:text-white transition-all"
+              className="inline-flex items-center px-10 py-4 bg-white dark:bg-slate-900 border-2 border-primary text-primary font-bold rounded-full hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/10"
             >
-              View All Medicines
+              Explore Full Catalog
             </Link>
           </div>
         </div>
       </section>
+
+      <OrderModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        medicine={selectedMedicine} 
+      />
     </div>
   );
 };

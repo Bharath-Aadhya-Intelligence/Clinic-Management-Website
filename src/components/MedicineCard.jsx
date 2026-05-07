@@ -10,12 +10,16 @@ const MedicineCard = ({ medicine, onOrder }) => {
             ? medicine.image_data 
             : medicine.image_filename 
               ? `${import.meta.env.VITE_API_URL}/static/medicines/${medicine.image_filename}` 
-              : `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id}`} 
+              : medicine.id % 2 === 0 
+                ? '/medicines/remedy1.png' 
+                : '/medicines/remedy2.png'} 
           alt={medicine.name} 
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id}`;
+            // Robust fallback to a varied high-quality unsplash image if local fails
+            e.target.src = `https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=500&sig=${medicine.id || medicine.name}`;
           }}
         />
         <div className="absolute top-4 right-4">

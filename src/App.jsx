@@ -1,7 +1,9 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { getMedicines } from './api/medicines';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AdminLayout from './components/AdminLayout';
@@ -17,6 +19,19 @@ import MedicineManagement from './pages/MedicineManagement';
 import OrderManagement from './pages/OrderManagement';
 
 const App = () => {
+  useEffect(() => {
+    // Pre-fetch medicines on app load to populate cache
+    const prefetch = async () => {
+      try {
+        const data = await getMedicines();
+        localStorage.setItem('medicines_cache', JSON.stringify(data));
+      } catch (e) {
+        // Silent fail for prefetch
+      }
+    };
+    prefetch();
+  }, []);
+
   return (
     <AuthProvider>
       <Router>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import MedicineCard from '../components/MedicineCard';
 import OrderModal from '../components/OrderModal';
-import { Search, Filter, Loader2 } from 'lucide-react';
+import { Search, Filter, Loader2, Sparkles } from 'lucide-react';
 import { getMedicines } from '../api/medicines';
+import MedicineSkeleton from '../components/MedicineSkeleton';
 
 const Medicines = () => {
   const [medicines, setMedicines] = useState([]);
@@ -11,14 +12,40 @@ const Medicines = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [isSlow, setIsSlow] = useState(false);
+
   useEffect(() => {
+    // Try to load from cache first
+    const cachedMedicines = localStorage.getItem('medicines_cache');
+    if (cachedMedicines) {
+      try {
+        const parsed = JSON.parse(cachedMedicines);
+        if (parsed && Array.isArray(parsed)) {
+          setMedicines(parsed);
+          setLoading(false); // If we have cache, we can stop the initial spinner
+        }
+      } catch (e) {
+        console.error('Failed to parse cached medicines', e);
+      }
+    }
+    
     fetchMedicines();
+
+    // Show "Slow Load" message after 3 seconds
+    const timer = setTimeout(() => {
+      setIsSlow(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchMedicines = async () => {
     try {
       const data = await getMedicines();
       setMedicines(data);
+      // Update cache
+      localStorage.setItem('medicines_cache', JSON.stringify(data));
+      setIsSlow(false);
     } catch (error) {
       console.error('Failed to fetch medicines');
     } finally {
@@ -67,11 +94,29 @@ const Medicines = () => {
         </div>
 
         {/* Catalog Grid */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-32">
-            <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-            <p className="text-slate-500 font-medium">Loading our natural remedies...</p>
+        {loading && medicines.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <MedicineSkeleton key={i} />
+            ))}
           </div>
+        ) : loading && medicines.length > 0 ? (
+          /* Background loading state when we have cached data */
+          <>
+            <div className="flex items-center justify-center mb-8 space-x-2 animate-pulse">
+              <div className="w-2 h-2 bg-primary rounded-full" />
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider">Updating Catalog...</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 opacity-70">
+              {filteredMedicines.map((medicine) => (
+                <MedicineCard 
+                  key={medicine.id} 
+                  medicine={medicine} 
+                  onOrder={handleOrder} 
+                />
+              ))}
+            </div>
+          </>
         ) : filteredMedicines.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
             {filteredMedicines.map((medicine) => (
@@ -96,6 +141,20 @@ const Medicines = () => {
             >
               Clear Search
             </button>
+          </div>
+        )}
+
+        {isSlow && loading && (
+          <div className="mt-12 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-3xl flex items-center space-x-4 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center shrink-0">
+              <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h4 className="font-bold text-blue-900 dark:text-blue-100">Almost there!</h4>
+              <p className="text-blue-700 dark:text-blue-300 text-sm">
+                Our server is waking up to bring you the latest remedies. This usually takes a few extra seconds on the first load.
+              </p>
+            </div>
           </div>
         )}
       </section>

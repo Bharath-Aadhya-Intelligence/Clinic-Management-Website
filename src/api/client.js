@@ -10,9 +10,28 @@ const client = axios.create({
   },
 });
 
-// Request interceptor for attaching JWT
+// Simple client-side rate limiting
+const requestCounts = new Map();
+const RATE_LIMIT = 30; // Max 30 requests per minute
+const LIMIT_WINDOW = 60000; // 1 minute in ms
+
 client.interceptors.request.use(
   (config) => {
+    const now = Date.now();
+    const minuteAgo = now - LIMIT_WINDOW;
+    
+    // Clean up old counts
+    for (const [time] of requestCounts) {
+      if (time < minuteAgo) requestCounts.delete(time);
+    }
+    
+    if (requestCounts.size >= RATE_LIMIT) {
+      toast.error('Too many requests. Please wait a moment.');
+      return Promise.reject(new Error('Rate limit exceeded'));
+    }
+    
+    requestCounts.set(now, true);
+    
     const token = localStorage.getItem('admin_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

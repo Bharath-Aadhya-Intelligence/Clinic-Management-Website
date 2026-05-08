@@ -22,8 +22,33 @@ const OrderModal = ({ isOpen, onClose, medicine }) => {
     }
   }, [isOpen]);
 
+  const validateForm = () => {
+    const { name, phone, address } = formData;
+    
+    if (name.trim().length < 3) {
+      toast.error('Please enter your full name (at least 3 characters)');
+      return false;
+    }
+    
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      toast.error('Please enter a valid 10-digit mobile number');
+      return false;
+    }
+    
+    if (address.trim().length < 10) {
+      toast.error('Please enter a complete delivery address (at least 10 characters)');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     setIsSubmitting(true);
     try {
       await placeOrder({
